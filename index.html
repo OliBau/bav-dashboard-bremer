@@ -1411,6 +1411,22 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
     .bs-vergleich-table { font-size: .78rem; }
     .bs-vergleich-table th, .bs-vergleich-table td { padding: .4rem .35rem; }
 }
+
+/* ===== Beitragsstufen (Stufenplan) ===== */
+.stufen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; }
+.stufen-grid-sm { margin-bottom: .75rem; }
+.stufe-btn { border: 2px solid var(--border, #ddd); background: #fff; border-radius: var(--radius, 6px); padding: .6rem .3rem .5rem; text-align: center; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s; }
+.stufe-btn:hover { border-color: var(--primary-medium, var(--primary)); }
+.stufe-btn.active { border-color: var(--primary); background: var(--primary-light, #eee); }
+.stufe-btn:disabled { opacity: .4; cursor: not-allowed; }
+.stufe-btn-name { font-size: .66rem; letter-spacing: 1px; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+.stufe-btn-gesamt { font-size: 1.15rem; font-weight: 800; color: var(--text, #222); line-height: 1.15; margin-top: .15rem; }
+.stufe-btn-ag { font-size: .7rem; color: var(--text-muted, #666); margin-top: .2rem; line-height: 1.3; }
+.stufe-btn-ag b { color: var(--primary); }
+.stufe-btn-netto { font-size: .72rem; font-weight: 700; color: var(--text, #222); margin-top: .35rem; padding-top: .3rem; border-top: 1px dashed var(--border, #ddd); }
+.stufe-btn.active .stufe-btn-netto { color: var(--primary); }
+@media (max-width: 640px) { .stufen-grid { grid-template-columns: repeat(3, 1fr); gap: .4rem; } .stufe-btn { padding: .5rem .2rem .4rem; } .stufe-btn-gesamt { font-size: 1rem; } }
+@media (max-width: 380px) { .stufen-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
@@ -1489,7 +1505,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
             </div>
             <h3>Arbeitgeber-Zuschuss</h3>
-            <p>Bremer GmbH zahlt zusätzlich zu deinem eigenen Beitrag 35 EUR Festzuschuss plus 20 % auf deine Entgeltumwandlung. Dieses Geld gehört dir – und erhöht deinen Gesamtbeitrag deutlich.</p>
+            <p>Bremer GmbH zahlt zusätzlich zu deinem eigenen Beitrag je nach Beitragsstufe 23 bis 75 EUR im Monat (Stufenplan: Stufe I 50 EUR Gesamtbeitrag / 23 EUR Zuschuss bis Stufe V 338 EUR / 75 EUR). Dieses Geld gehört dir – und erhöht deinen Gesamtbeitrag deutlich.</p>
         </div>
 
         
@@ -1656,16 +1672,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
 
     
     <div class="netto-wish">
-        <div class="netto-wish-title">Wie viel möchtest du monatlich von deinem Nettogehalt in deine Altersvorsorge einzahlen?</div>
-        <div class="value-combo" style="justify-content:center">
-            <div class="value-input-wrap">
-                <input type="number" class="value-input" id="inpNetto" value="100" min="5" max="500" step="1" style="font-size:1.3rem;width:80px;padding:.6rem">
-                <span class="value-input-suffix" style="font-size:1rem;font-weight:700;color:var(--primary)">€ netto</span>
-            </div>
-        </div>
-        <div style="margin-top:.75rem">
-            <input type="range" class="slider-track" id="slNetto" min="5" max="500" step="1" value="100">
-        </div>
+        <div class="netto-wish-title">Welche Stufe des Stufenplans passt zu dir? Tippe eine Stufe an.</div>
+        <div class="stufen-grid" id="stufenGrid"></div>
+        <input type="hidden" id="inpStufe" value="">
+        <div class="input-hint" style="margin-top:.6rem">Gesamtbeitrag = dein Eigenbeitrag (brutto) + Zuschuss Bremer GmbH. Unter jeder Stufe siehst du, was sie dich ungefähr netto kostet.</div>
     </div>
 </div>
 
@@ -1816,7 +1826,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
             <div class="tl-card">
                 <div class="ci"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg></div>
                 <h4>Versicherungsbeginn</h4>
-                <p>Du startest mit deinem Wunschbeitrag – einfach per Entgeltumwandlung aus dem Bruttolohn.</p>
+                <p>Du startest mit deiner Wunschstufe – einfach per Entgeltumwandlung aus dem Bruttolohn.</p>
             </div>
             <div class="tl-card">
                 <div class="ci"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg></div>
@@ -2119,11 +2129,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
 
     <div class="bs-bestand-box">
         <div class="bs-input-label" style="margin-bottom:.5rem">
-            <span class="bs-input-label-text">Dein aktueller Gesamtbeitrag</span>
+            <span class="bs-input-label-text">Deine aktuelle Stufe – oder trage deinen genauen Gesamtbeitrag ein</span>
         </div>
+        <div class="stufen-grid stufen-grid-sm" id="bsStufenGridBestand"></div>
         <div class="bs-bestand-row">
             <div class="bs-bestand-input-wrap">
-                <input type="number" class="bs-bestand-input" id="bsInpBestand" value="200" min="36" max="676" step="1">
+                <input type="number" class="bs-bestand-input" id="bsInpBestand" value="100" min="50" max="338" step="1">
                 <span class="bs-bestand-suffix">&euro;</span>
             </div>
             <span class="bs-bestand-arrow">&rarr;</span>
@@ -2176,12 +2187,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
             <span class="bs-breakdown-value" id="bsResAG" style="color:var(--c-ag)">&ndash;</span>
         </div>
         <div class="bs-breakdown-row" style="padding-left:1.2rem;font-size:.78rem;color:var(--text-muted)">
-            <span class="bs-breakdown-label">davon Festzuschuss</span>
+            <span class="bs-breakdown-label">deine Beitragsstufe</span>
             <span class="bs-breakdown-value" id="bsResAGFest" style="color:var(--text-muted)">&ndash;</span>
-        </div>
-        <div class="bs-breakdown-row" style="padding-left:1.2rem;font-size:.78rem;color:var(--text-muted)">
-            <span class="bs-breakdown-label">davon %-Zuschuss</span>
-            <span class="bs-breakdown-value" id="bsResAGProz" style="color:var(--text-muted)">&ndash;</span>
         </div>
         <div class="bs-breakdown-row bs-breakdown-total">
             <span class="bs-breakdown-label">Gesamtbeitrag</span>
@@ -2209,30 +2216,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
 
     <div class="bs-erhoehung-card">
         <div class="bs-erhoehung-input-wrap">
-            <div class="bs-erhoehung-input-label">Auf welchen Gesamtbeitrag möchtest du erhöhen?</div>
-            <div class="bs-value-combo" style="margin-bottom:.5rem">
-                <div class="bs-value-input-wrap">
-                    <input type="number" class="bs-value-input" id="bsInpNeuerGesamt" value="350" min="36" max="676" step="1" style="font-size:1.1rem;width:100px;padding:.55rem .4rem;padding-right:2.2rem">
-                    <span class="bs-value-input-suffix" style="font-size:.9rem;font-weight:700;color:#E67E22">&euro;/mtl.</span>
-                </div>
-            </div>
-            <div class="bs-slider-with-markers">
-                <div class="bs-slider-markers" id="bsSliderMarkers">
-                    <div class="bs-slider-marker marker-mid" id="bsMarker338" onclick="bsSnapSlider(338)" title="4% BBG: steuer- und SV-frei">
-                        <div class="bs-slider-marker-label">SV-frei</div>
-                        <div class="bs-slider-marker-value">338 &euro;</div>
-                        <div class="bs-slider-marker-tick"></div>
-                    </div>
-                    <div class="bs-slider-marker" style="position:absolute;right:0" onclick="bsSnapSlider(676)" title="8% BBG: steuerfrei (Maximum)">
-                        <div class="bs-slider-marker-label">Maximum</div>
-                        <div class="bs-slider-marker-value">676 &euro;</div>
-                        <div class="bs-slider-marker-tick"></div>
-                    </div>
-                </div>
-                <input type="range" class="bs-slider-track" id="bsSlNeuerGesamt" min="200" max="676" step="1" value="350" style="width:100%">
-            </div>
+            <div class="bs-erhoehung-input-label">Auf welche Stufe möchtest du erhöhen? Tippe deine Zielstufe an.</div>
+            <div class="stufen-grid" id="bsStufenGridNeu"></div>
+            <input type="hidden" id="bsInpNeuerGesamt" value="">
         </div>
 
+        <div id="bsMaxHint" style="display:none;padding:1rem;border-radius:var(--radius, 6px);background:var(--primary-light, #eee);color:var(--primary);font-weight:600;text-align:center">Du bist bereits in der höchsten Stufe – mehr Zuschuss gibt es aktuell nicht. Sprich uns im persönlichen Gespräch an, wenn du darüber hinaus vorsorgen möchtest.</div>
         <table class="bs-vergleich-table">
             <thead>
                 <tr>
@@ -2571,9 +2560,44 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
 <script>
 const CONFIG ={
 firma: "Bremer GmbH",
-agFest: 35.0,
-agProz: 0.2
+agFest: 0,
+agProz: 0,
+stufen: [{"name": "I","gesamt": 50,"ag": 23},{"name": "II","gesamt": 100,"ag": 32},{"name": "III","gesamt": 150,"ag": 40},{"name": "IV","gesamt": 230,"ag": 57},{"name": "V","gesamt": 338,"ag": 75}]
 };
+function stufeFuer(gesamt){
+var st = CONFIG.stufen[0];
+for (var i = 0;i < CONFIG.stufen.length;i++){
+if (gesamt >= CONFIG.stufen[i].gesamt - 0.005) st = CONFIG.stufen[i];
+}
+return st;
+}
+function agFuer(gesamt){
+return gesamt < CONFIG.stufen[0].gesamt - 0.005 ? 0 : stufeFuer(gesamt).ag;
+}
+function renderStufenGrid(containerId,selectedGesamt,onSelect,inp,disableUpTo){
+var el = document.getElementById(containerId);
+if (!el) return;
+var html = '';
+CONFIG.stufen.forEach(function(st){
+var disabled = (disableUpTo !== undefined && st.gesamt <= disableUpTo);
+var netto = '';
+if (inp && !disabled){
+var r = berechneVorwaerts(inp.brutto,inp.stkl,inp.kist,inp.kifb,inp.bundesland,st.gesamt);
+netto = 'ca. ' + Math.round(r.nettoAufwand).toLocaleString('de-DE') + ' \u20AC netto';
+}
+var active = Math.abs(st.gesamt - selectedGesamt) < 0.5 ? ' active' : '';
+html += '<button type="button" class="stufe-btn' + active + '" data-gesamt="' + st.gesamt + '"' + (disabled ? ' disabled' : '') + '>'
++ '<div class="stufe-btn-name">Stufe ' + st.name + '</div>'
++ '<div class="stufe-btn-gesamt">' + st.gesamt.toLocaleString('de-DE') + ' \u20AC</div>'
++ '<div class="stufe-btn-ag">davon <b>' + st.ag.toLocaleString('de-DE') + ' \u20AC</b> ' + CONFIG.firma + '</div>'
++ (netto ? '<div class="stufe-btn-netto">' + netto + '</div>' : '')
++ '</button>';
+});
+el.innerHTML = html;
+el.querySelectorAll('.stufe-btn').forEach(function(b){
+b.addEventListener('click',function(){onSelect(+this.getAttribute('data-gesamt'));});
+});
+}
 const P ={
 jahr: 2026,
 bbg_west: 101400,bbg_ost: 101400,bbg_gkv: 69750,
@@ -2616,11 +2640,8 @@ const SK ={
 4:{st_tab: 1,hfbf: 0,hbvpf: 1.0,kifbf: 0.5,fg_solf: 1},
 5:{st_tab: 1,hfbf: 0,hbvpf: 1.0,kifbf: 0.0,fg_solf: 1}
 };
-function getAGModell(){
-return{
-festbetrag: CONFIG.agFest,
-prozent: CONFIG.agProz
-};
+function getAGModell(gesamt){
+return{festbetrag: agFuer(gesamt || 0),prozent: 0};
 }
 function r2(x){return Math.round(x * 100) / 100;}
 function stBer(x){
@@ -2655,7 +2676,7 @@ const zw_e2 = Math.min(zw_e,zw_e1 + result2);
 return zw_e2 + rich_st * P.sfak4;
 }
 function berechneVorwaerts(brutto,stkl,kist,kifb,bundesland,gesamtbeitrag,agModell){
-const ag = agModell || getAGModell();
+const ag = agModell || getAGModell(gesamtbeitrag);
 const bl = BL[bundesland];
 const sk = SK[stkl];
 const bbg = (bl.bbg === "W") ? P.bbg_west : P.bbg_ost;
@@ -2767,20 +2788,8 @@ return 'Zuschuss ' + CONFIG.firma;
 function updateBanner(){
 document.getElementById('agBannerTitle').textContent = CONFIG.firma + ' zahlt dazu';
 const detailEl = document.getElementById('agBannerDetail');
-let html = '';
-if (CONFIG.agFest > 0){
-html += '<div class="ag-banner-line"><span class="ag-banner-line-icon">\u20AC</span>'
-+ '<span><span class="ag-banner-line-value">' + CONFIG.agFest.toLocaleString('de-DE',{minimumFractionDigits: 2})
-+ ' \u20AC</span> Festzuschuss pro Monat</span></div>';
-}
-if (CONFIG.agProz > 0){
-html += '<div class="ag-banner-line"><span class="ag-banner-line-icon">%</span>'
-+ '<span><span class="ag-banner-line-value">' + Math.round(CONFIG.agProz * 100)
-+ ' %</span> Zuschuss auf deinen Eigenbeitrag</span></div>';
-}
-if (CONFIG.agFest === 0 && CONFIG.agProz === 0){
-html = '<div class="ag-banner-line" style="color:var(--text-muted);font-style:italic">Kein Zuschuss konfiguriert</div>';
-}
+var first = CONFIG.stufen[0],last = CONFIG.stufen[CONFIG.stufen.length - 1];
+var html = '<div class=\"ag-banner-line\"><span class=\"ag-banner-line-icon\">\u20AC</span><span>Stufenplan: <span class=\"ag-banner-line-value\">' + first.ag.toLocaleString('de-DE') + ' \u20AC</span> (Stufe ' + first.name + ') bis <span class=\"ag-banner-line-value\">' + last.ag.toLocaleString('de-DE') + ' \u20AC</span> (Stufe ' + last.name + ') Zuschuss pro Monat \u2013 je nach gew\u00E4hltem Gesamtbeitrag</span></div>';
 detailEl.innerHTML = html;
 }
 function updateAGLabels(){
@@ -2793,14 +2802,13 @@ const stkl = +document.getElementById('selStkl').value;
 const bundesland = document.getElementById('selBL').value;
 const kist = document.getElementById('chkKiSt').checked;
 const kifb = +document.getElementById('selKiFB').value;
-const wunschNetto = +document.getElementById('inpNetto').value || 5;
+const stufeGesamt = +document.getElementById('inpStufe').value || CONFIG.stufen[Math.min(2,CONFIG.stufen.length - 1)].gesamt;
 updateBanner();
 updateAGLabels();
-const ag = getAGModell();
-const gesamtRoh = berechneRueckwaerts(brutto,stkl,kist,kifb,bundesland,wunschNetto);
-const gesamtGerundet = Math.round(gesamtRoh / 5) * 5;
-const minGesamt = ag.festbetrag + 1;
-const res = berechneVorwaerts(brutto,stkl,kist,kifb,bundesland,Math.max(gesamtGerundet,minGesamt),ag);
+const ag = getAGModell(stufeGesamt);
+const res = berechneVorwaerts(brutto,stkl,kist,kifb,bundesland,stufeGesamt,ag);
+renderStufenGrid('stufenGrid',stufeGesamt,function(g){document.getElementById('inpStufe').value = g;updateUI();},
+{brutto: brutto,stkl: stkl,kist: kist,kifb: kifb,bundesland: bundesland});
 const nettoGerundet = Math.round(res.nettoAufwand);
 document.getElementById('heroNetto').textContent = 'ca. ' + nettoGerundet.toLocaleString('de-DE');
 document.getElementById('heroGesamt').textContent = fmtInt(res.gesamtbeitrag);
@@ -2851,18 +2859,6 @@ inpBrutto.addEventListener('blur',function(){
 let val = parseInt(this.value) || 3000;
 val = Math.max(650,Math.min(12000,val));
 this.value = val;slBrutto.value = val;updateUI();
-});
-const slNetto = document.getElementById('slNetto');
-const inpNetto = document.getElementById('inpNetto');
-slNetto.addEventListener('input',function(){inpNetto.value = this.value;updateUI();});
-inpNetto.addEventListener('input',function(){
-const raw = parseInt(this.value);
-if (!isNaN(raw) && raw >= 5 && raw <= 500){slNetto.value = raw;updateUI();}
-});
-inpNetto.addEventListener('blur',function(){
-let val = parseInt(this.value) || 50;
-val = Math.max(5,Math.min(500,val));
-this.value = val;slNetto.value = val;updateUI();
 });
 ['selStkl','selBL','chkKiSt','selKiFB'].forEach(function(id){
 var el = document.getElementById(id);
@@ -2996,14 +2992,14 @@ var stkl = document.getElementById('selStkl').value;
 var bl = document.getElementById('selBL').value;
 var kist = document.getElementById('chkKiSt').checked;
 var kifb = document.getElementById('selKiFB').value;
-var netto = document.getElementById('inpNetto').value;
+var stufeSel = stufeFuer(+document.getElementById('inpStufe').value || 0);
 var geb = document.getElementById('inpGebDatum');
 var gebStr = geb && geb.value ? geb.value.split('-').reverse().join('.') : '';
 var lines = [
 '<span class="print-param"><span class="print-param-label">Bruttogehalt:</span> ' + parseInt(brutto).toLocaleString('de-DE') + ' \u20AC</span>',
 '<span class="print-param"><span class="print-param-label">Steuerklasse:</span> ' + (STKL_NAMEN[stkl] || stkl) + ' | <span class="print-param-label">Bundesland:</span> ' + (BL_NAMEN[bl] || bl) + '</span>',
 '<span class="print-param"><span class="print-param-label">Kirchensteuer:</span> ' + (kist ? 'Ja' : 'Nein') + ' | <span class="print-param-label">Kinderfreibetr\u00E4ge:</span> ' + (kifb === '0' ? 'keine' : kifb) + '</span>',
-'<span class="print-param"><span class="print-param-label">Gew\u00FCnschter Nettobeitrag:</span> ' + parseInt(netto).toLocaleString('de-DE') + ' \u20AC</span>'
+'<span class="print-param"><span class="print-param-label">Gew\u00E4hlte Stufe:</span> Stufe ' + stufeSel.name + ' (' + stufeSel.gesamt.toLocaleString('de-DE') + ' \u20AC Gesamtbeitrag)</span>'
 ];
 if (gebStr){
 lines.push('<span class="print-param"><span class="print-param-label">Geburtsdatum:</span> ' + gebStr + '</span>');
@@ -3106,29 +3102,21 @@ var titleEl = document.getElementById('bsAgBannerTitle');
 var detailEl = document.getElementById('bsAgBannerDetail');
 if (!detailEl) return;
 if (titleEl) titleEl.textContent = CONFIG.firma + ' zahlt dazu';
-var html = '';
-if (CONFIG.agFest > 0){
-html += '<div class="bs-ag-banner-line"><span class="bs-ag-banner-line-icon">€</span>'
-+ '<span><span class="bs-ag-banner-line-value">' + CONFIG.agFest.toLocaleString('de-DE',{minimumFractionDigits: 2})
-+ ' €</span> Festzuschuss pro Monat</span></div>';
-}
-if (CONFIG.agProz > 0){
-html += '<div class="bs-ag-banner-line"><span class="bs-ag-banner-line-icon">%</span>'
-+ '<span><span class="bs-ag-banner-line-value">' + Math.round(CONFIG.agProz * 100)
-+ ' %</span> Zuschuss auf deinen Eigenbeitrag</span></div>';
-}
+var first = CONFIG.stufen[0],last = CONFIG.stufen[CONFIG.stufen.length - 1];
+var html = '<div class=\"bs-ag-banner-line\"><span class=\"bs-ag-banner-line-icon\">€</span><span>Stufenplan: <span class=\"bs-ag-banner-line-value\">' + first.ag.toLocaleString('de-DE') + ' €</span> (Stufe ' + first.name + ') bis <span class=\"bs-ag-banner-line-value\">' + last.ag.toLocaleString('de-DE') + ' €</span> (Stufe ' + last.name + ') Zuschuss pro Monat – je nach Gesamtbeitrag</span></div>';
 detailEl.innerHTML = html;
 }
 function bsUpdateBestand(inp){
-var bestand = +document.getElementById('bsInpBestand').value || (CONFIG.agFest + 1);
+var bestand = +document.getElementById('bsInpBestand').value || CONFIG.stufen[0].gesamt;
+renderStufenGrid('bsStufenGridBestand',stufeFuer(bestand).gesamt,
+function(g){document.getElementById('bsInpBestand').value = g;window.bsUpdateAll();},inp);
 var res = berechneVorwaerts(inp.brutto,inp.stkl,inp.kist,inp.kifb,inp.bundesland,bestand);
 document.getElementById('bsBestandNettoInline').textContent = fmt(res.nettoAufwand);
 document.getElementById('bsResNetto').textContent = fmt(res.nettoAufwand);
 document.getElementById('bsResSteuer').textContent = fmt(res.stVorteilMon);
 document.getElementById('bsResSV').textContent = fmt(res.svVorteilMon);
 document.getElementById('bsResAG').textContent = fmt(res.agZuschuss);
-document.getElementById('bsResAGFest').textContent = fmt(CONFIG.agFest);
-document.getElementById('bsResAGProz').textContent = fmt(res.agZuschuss - CONFIG.agFest);
+document.getElementById('bsResAGFest').textContent = 'Stufe ' + stufeFuer(bestand).name;
 document.getElementById('bsResGesamt').textContent = fmt(res.gesamtbeitrag);
 document.getElementById('bsResEU').textContent = fmt(res.eu);
 document.getElementById('bsBarTotal').textContent = fmtInt(res.gesamtbeitrag);
@@ -3149,33 +3137,32 @@ bSV.textContent = pSV > 10 ? fmtInt(res.svVorteilMon) : '';
 bAG.textContent = pAG > 12 ? fmtInt(res.agZuschuss) : '';
 return res;
 }
-function bsUpdateSliderMin(bestand){
-var sl = document.getElementById('bsSlNeuerGesamt');
-var newMin = Math.max(bestand + 1,37);
-sl.min = newMin;
-if (parseInt(sl.value) < newMin){
-sl.value = newMin;
-document.getElementById('bsInpNeuerGesamt').value = newMin;
+function bsRenderNeuGrid(inp,bestandGesamt){
+var inpNg = document.getElementById('bsInpNeuerGesamt');
+var sel = +inpNg.value || 0;
+if (sel <= bestandGesamt){
+sel = 0;
+for (var i = 0;i < CONFIG.stufen.length;i++){
+if (CONFIG.stufen[i].gesamt > bestandGesamt + 0.5){sel = CONFIG.stufen[i].gesamt;break;}
 }
-bsUpdateMarkerPositions(newMin);
+inpNg.value = sel;
 }
-function bsUpdateMarkerPositions(sliderMin){
-var max = 676;
-var range = max - sliderMin;
-if (range <= 0) return;
-var pos338 = Math.max(0,(338 - sliderMin) / range * 100);
-var marker338 = document.getElementById('bsMarker338');
-if (marker338){
-if (338 <= sliderMin){marker338.style.display = 'none';}
-else{marker338.style.display = '';marker338.style.left = pos338 + '%';}
-}
+renderStufenGrid('bsStufenGridNeu',sel,function(g){inpNg.value = g;window.bsUpdateAll();},inp,bestandGesamt + 0.5);
+return sel;
 }
 function bsUpdateErhoehung(inp,resAktuell){
-bsUpdateSliderMin(Math.round(resAktuell.gesamtbeitrag));
-var neuerGesamt = +document.getElementById('bsInpNeuerGesamt').value || (resAktuell.gesamtbeitrag + 1);
-if (neuerGesamt <= resAktuell.gesamtbeitrag){
-neuerGesamt = Math.round(resAktuell.gesamtbeitrag) + 1;
+var neuerGesamt = bsRenderNeuGrid(inp,resAktuell.gesamtbeitrag);
+var tblEl = document.querySelector('.bs-vergleich-table');
+var hlBoxEl = document.getElementById('bsHighlightBox');
+var maxHint = document.getElementById('bsMaxHint');
+if (!neuerGesamt){
+if (tblEl) tblEl.style.display = 'none';
+if (hlBoxEl) hlBoxEl.style.display = 'none';
+if (maxHint) maxHint.style.display = '';
+return;
 }
+if (tblEl) tblEl.style.display = '';
+if (maxHint) maxHint.style.display = 'none';
 var resNeu = berechneVorwaerts(inp.brutto,inp.stkl,inp.kist,inp.kifb,inp.bundesland,neuerGesamt);
 document.getElementById('bsVglGesamtAlt').textContent = fmt(resAktuell.gesamtbeitrag);
 document.getElementById('bsVglGesamtNeu').textContent = fmt(resNeu.gesamtbeitrag);
@@ -3211,15 +3198,6 @@ hlBox.style.display = '';
 hlBox.style.display = 'none';
 }
 }
-window.bsSnapSlider = function(value){
-var sl = document.getElementById('bsSlNeuerGesamt');
-var inp = document.getElementById('bsInpNeuerGesamt');
-var min = parseInt(sl.min);
-if (value < min) value = min;
-sl.value = value;
-inp.value = value;
-window.bsUpdateAll();
-};
 window.bsUpdateAll = function(){
 if (typeof berechneVorwaerts !== 'function') return;
 var inp = bsGetInputs();
@@ -3242,24 +3220,12 @@ this.value = v;slBr.value = v;window.bsUpdateAll();
 var inpBe = document.getElementById('bsInpBestand');
 inpBe.addEventListener('input',function(){
 var raw = parseInt(this.value);
-if (!isNaN(raw) && raw >= 36 && raw <= 676){window.bsUpdateAll();}
+if (!isNaN(raw) && raw >= 50 && raw <= 338){window.bsUpdateAll();}
 });
 inpBe.addEventListener('blur',function(){
-var v = parseInt(this.value) || 200;
-v = Math.max(36,Math.min(676,v));
+var v = parseInt(this.value) || 100;
+v = Math.max(50,Math.min(338,v));
 this.value = v;window.bsUpdateAll();
-});
-var slNg = document.getElementById('bsSlNeuerGesamt');
-var inpNg = document.getElementById('bsInpNeuerGesamt');
-slNg.addEventListener('input',function(){inpNg.value = this.value;window.bsUpdateAll();});
-inpNg.addEventListener('input',function(){
-var raw = parseInt(this.value);
-if (!isNaN(raw) && raw >= 36 && raw <= 676){slNg.value = raw;window.bsUpdateAll();}
-});
-inpNg.addEventListener('blur',function(){
-var v = parseInt(this.value) || 350;
-v = Math.max(36,Math.min(676,v));
-this.value = v;slNg.value = v;window.bsUpdateAll();
 });
 ['bsSelStkl','bsSelBL','bsChkKiSt','bsSelKiFB'].forEach(function(id){
 var el = document.getElementById(id);
